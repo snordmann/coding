@@ -4,8 +4,8 @@ var grav = 10;
 function setup() {
 	createCanvas(400, 400);
 
-	particles.push(new Particle(createVector(width/2,height/2),createVector(0,0.1),10));
-	particles.push(new Particle(createVector(width/2+100,height/2),createVector(0,-1),1));
+	particles.push(new Particle(createVector(width/2,height/2),createVector(0,random(-0.5,0.5)),5));
+	particles.push(new Particle(createVector(width/2+100,height/2),createVector(-1,random(-0.5,0.5)),5));
 }
 
 function draw() {
