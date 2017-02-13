@@ -27,8 +27,10 @@ function Particle(position, velocity, mass) {
   this.attract = function(other) {
 	  if (p5.Vector.dist(other.pos, this.pos) <= this.mass + other.mass) {
 		  if (this.mass <= other.mass) {
+			  other.vel = (this.vel.mult(this.mass)+ other.vel.mult(other.mass)) / (this.mass + other.mass);
 			  this.crash = true;
 		  } else {
+			  this.vel = (this.vel.mult(this.mass)+ other.vel.mult(other.mass)) / (this.mass + other.mass);
 			  other.crash = true;
 		  }
 	  }
