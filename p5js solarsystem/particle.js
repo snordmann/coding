@@ -15,7 +15,6 @@ function Particle(position, velocity, mass) {
   } else {
 	this.mass = random(1,5);
   }
-  this.lastpos = new Array();
 
   this.crash = false;
   this.update = function() {
@@ -26,17 +25,24 @@ function Particle(position, velocity, mass) {
 
   this.attract = function(other) {
 	  if (p5.Vector.dist(other.pos, this.pos) <= this.mass + other.mass) {
+		  var velx = (this.vel.x * this.mass + other.vel.x * other.mass) / (this.mass + other.mass);
+		  var vely = (this.vel.y * this.mass + other.vel.y * other.mass) / (this.mass + other.mass);
+		  var velmag = sqrt(pow(velx,2) + pow(vely,2));
+		  var heading = atan(vely/velx);
+		  
+		  var tmpvel = p5.Vector.fromAngle(heading);
+		  tmpvel.setMag(velmag);
 		  if (this.mass <= other.mass) {
-			  other.vel = (this.vel.mult(this.mass)+ other.vel.mult(other.mass)) / (this.mass + other.mass);
+			  other.vel = tmpvel;
 			  this.crash = true;
 		  } else {
-			  this.vel = (this.vel.mult(this.mass)+ other.vel.mult(other.mass)) / (this.mass + other.mass);
+			  this.vel = tmpvel;
 			  other.crash = true;
 		  }
 	  }
     var force = p5.Vector.sub(other.pos, this.pos);
 	var dis = p5.Vector.dist(this.pos, other.pos);
-	var strength = grav * other.mass / (dis * dis);
+	var strength = grav * other.mass / (dis*dis);
 	force.setMag(strength);
     this.applyForce(force);
   }
@@ -46,16 +52,7 @@ function Particle(position, velocity, mass) {
   }
 
   this.show = function() {
-	stroke(255);
-	for (var i = 0; i < this.lastpos.length - 1; i++) {
-		line(this.lastpos[i].x, this.lastpos[i].y, this.lastpos[i+1].x, this.lastpos[i+1].y);
-	}
 	fill(255);
     ellipse(this.pos.x, this.pos.y, this.mass*2, this.mass*2);
-	
-	this.lastpos.push(this.pos);
-	if(this.lastpos.length > 100) {
-		this.lastpos.splice(0,1);
-	}
   }
 }
