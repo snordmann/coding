@@ -5,7 +5,7 @@ function setup() {
 	createCanvas(400, 400);
 	colorMode(HSB);
 
-	for (var i = 0; i < 5; i++) {
+	for (var i = 0; i < 15; i++) {
 		particles.push(new Particle());
 	}
 }
@@ -19,7 +19,7 @@ function draw() {
 			}
 		}
 		if (particles[i].crash ||
-			particles[i].pos.x > width||
+			particles[i].pos.x > width ||
 			particles[i].pos.x < 0 ||
 			particles[i].pos.y > height ||
 			particles[i].pos.y < 0) {
