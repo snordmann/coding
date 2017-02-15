@@ -3,8 +3,9 @@ var grav = 5;
 
 function setup() {
 	createCanvas(400, 400);
+	colorMode(HSB);
 
-	for (var i = 0; i < 15; i++) {
+	for (var i = 0; i < 5; i++) {
 		particles.push(new Particle());
 	}
 }
@@ -17,10 +18,15 @@ function draw() {
 				particles[i].attract(particles[j]);
 			}
 		}
-		if (particles[i].crash) {
+		if (particles[i].crash ||
+			particles[i].pos.x > width||
+			particles[i].pos.x < 0 ||
+			particles[i].pos.y > height ||
+			particles[i].pos.y < 0) {
 			particles.splice(i,1);
+			particles.push(new Particle());
 			continue;
-		}
+			}
 		particles[i].update();
 		particles[i].show();
 	}
