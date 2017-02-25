@@ -3,7 +3,7 @@ function Circle (r, p, s) {
 	this.children = undefined;
 	this.middle = p;
 	this.point = createVector(0, 0);
-	this.angle = 0;
+	this.angle = -PI/2;
 	this.speed = s;
 	
 	this.rotate = function () {
@@ -22,7 +22,7 @@ function Circle (r, p, s) {
 		if (this.children !== undefined) {
 			this.children.addChildren();
 		} else {
-			this.children = new Circle(this.radius/2, createVector(this.point.x + this.radius, this.point.y), k * this.speed);
+			this.children = new Circle(this.radius/2, createVector(this.point.x, this.point.y-this.radius), k * this.speed);
 		}
 	}
 	
@@ -32,10 +32,10 @@ function Circle (r, p, s) {
 		} else {
 			path.push(this.point);
 		}
-		stroke(255);
-		noFill();
-		ellipse(this.middle.x, this.middle.y, this.radius*2, this.radius*2);
-		stroke(255,0,255);
-		point(this.point.x, this.point.y);
+		if (!onlyPath) {
+			stroke(255);
+			noFill();
+			ellipse(this.middle.x, this.middle.y, this.radius*2, this.radius*2);
+		}
 	}
 }
