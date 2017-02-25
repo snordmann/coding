@@ -42,7 +42,7 @@ function Circle (r, p, s) {
 			this.children.show();
 		} else { // if no children, last circle should draw the path/line
 			if(showDot) {
-				stroke(180-pathColor, 100, 100);
+				stroke((180+pathColor) % 360, 100, 100);
 				strokeWeight(4);
 				point(this.point.x, this.point.y);
 			}

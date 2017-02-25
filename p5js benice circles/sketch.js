@@ -1,17 +1,22 @@
 var circle;
 var path;
 
-var k = -2.5; // TODO: Slider for k
-var kSlider;
-var kText;
-
-var initalspeed = 0.01; // maybe relate the increment to k and the number of children
-var initalspeedSlider;
-var initalspeedText;
-
 var children = 2;
 var cildenSlider;
 var childrenText;
+var childrenInput;
+
+var k = -2.5; // TODO: Slider for k
+var kSlider;
+var kText;
+var kInput;
+
+var initalspeed; // maybe relate the increment to k and the number of children
+var initalspeedSlider;
+var initalspeedText;
+var initalspeedInput;
+var initialmin = 0.0001;
+var initialmax = 0.1;
 
 var circleInside = false;
 var circleInsideCheckbox;
@@ -27,7 +32,11 @@ var showDotCheckbox;
 
 var pathColorSlider;
 var pathColorText;
-var pathColor = 250;
+var pathColor = 200;
+
+var pathSaturationSlider;
+var pathSaturationText;
+var pathSaturation = 100;
 
 var pathValueSlider;
 var pathValueText;
@@ -46,106 +55,170 @@ function restartAnimation() {
 	}
 }
 
+function speedLog(value) { // makes the scale logarithmic for finer control with small numbers
+	var minv = log(initialmin);
+	var maxv = log(initialmax);
+	
+	var minp = 0;
+	var maxp = 1000;
+	
+	var scale = (maxv-minv) / (maxp - minp);
+	
+	return exp(minv + scale * (value - minp));
+	
+}
+
 
 function setup() {
 	createCanvas(600, 600);
 	colorMode(HSB);
 	
-	onlyPathCheckbox = createCheckbox("Show Circles",true); // Initialize checkboxes
-	onlyPathCheckbox.position(width+10, 10);
-	onlyPathCheckbox.changed(function() {
-		onlyPath = !onlyPath;
-	});	
-	
-	drawVertexCheckbox = createCheckbox("Show as Path",true);
-	drawVertexCheckbox.position(width+10, 30);
-	drawVertexCheckbox.changed(function() {
-		drawVertex = !drawVertex;
-	});
-	
-	showDotCheckbox = createCheckbox("Show Dot",true); // Initialize checkboxes
-	showDotCheckbox.position(width+10, 50);
-	showDotCheckbox.changed(function() {
-		showDot = !showDot;
-	});
+	var restartText = createP("Changes that need the animation to restart:");
+	restartText.position(width +10, 0);
+	restartText.style("font-weight","bold");
+	restartText.style("white-space","nowrap");
 	
 	circleInsideCheckbox = createCheckbox("Circles inside",false);
-	circleInsideCheckbox.position(width+10, 70);
+	circleInsideCheckbox.position(width+25, 40);
 	circleInsideCheckbox.changed(function() {
 		circleInside = !circleInside;
 		restartAnimation();
 	});
 	
-	childrenText = createP(children + " Children");	
-	childrenText.position(width+100, 90-12);
 	
-	childrenSlider = createSlider(1,5,2,1);
-	childrenSlider.position(width+10, 90);
-	childrenSlider.style("width","70px");
+	childrenText = createP("Children:");	
+	childrenText.position(width+140, 70-13);
+	
+	childrenInput = createInput(children, "number");
+	childrenInput.position(width+205, 70+2);
+	childrenInput.style("width","20px");
+	childrenInput.changed(function() {
+		children = this.value();
+		childrenSlider.value(this.value());
+		restartAnimation();
+	});
+	
+	childrenSlider = createSlider(1,5,children,1);
+	childrenSlider.position(width+25, 70);
+	childrenSlider.style("width","100px");
 	childrenSlider.input(function() { //live preview of value
-		childrenText.html(this.value() + " Children");
+		childrenInput.value(this.value());
 	});
 	childrenSlider.changed(function() { //value has been chosen
 		children = this.value();
 		restartAnimation();
 	});	
 	
-	kText = createP("Value: " +k);	
-	kText.position(width+100, 120-12);
+	kText = createP("Value:");	
+	kText.position(width+140, 100-13);
 	
-	kSlider = createSlider(-4,4,-2,0.1);
-	kSlider.position(width+10, 120);
-	kSlider.style("width","70px");
+	kInput = createInput(k);
+	kInput.position(width+195, 100+2);
+	kInput.style("width","50px");
+	kInput.changed(function() {
+		k = parseFloat(this.value());
+		kSlider.value(k);
+		restartAnimation();
+	});
+	
+	kSlider = createSlider(-4,4,k,0.05);
+	kSlider.position(width+25, 100);
+	kSlider.style("width","100px");
 	kSlider.input(function() {
-		kText.html("Value: " +this.value());
+		kInput.value(this.value());
 	});
 	kSlider.changed(function() {
 		k = this.value();
 		restartAnimation();
 	});
 	
-	initalspeedText = createP("Speed: " +initalspeed);	
-	initalspeedText.position(width+100, 150-12);
 	
-	initalspeedSlider = createSlider(0.0005,0.5,0.1,0.0005);
-	initalspeedSlider.position(width+10, 150);
-	initalspeedSlider.style("width","70px");
+	initalspeedSlider = createSlider(0,1000,750,1);
+	initalspeedSlider.position(width+25, 130);
+	initalspeedSlider.style("width","100px");
 	initalspeedSlider.input(function() {
-		initalspeedText.html("Speed: " + this.value());
+		initalspeedText.html("Speed: " + speedLog(this.value()).toFixed(5));
 	});	
 	initalspeedSlider.changed(function() {
-		initalspeed = this.value();
+		initalspeed = speedLog(this.value());
 		restartAnimation();
+	});		
+	initalspeedText = createP("Speed: " + speedLog(initalspeedSlider.value()).toFixed(5));	
+	initalspeedText.position(width+140, 130-13);
+	initalspeed = speedLog(initalspeedSlider.value());
+	
+	
+	
+	var styleText = createP("Style changes:");
+	styleText.position(width + 10, 160);
+	styleText.style("font-weight","bold");
+	
+	onlyPathCheckbox = createCheckbox("Show Circles",true); // Initialize checkboxes
+	onlyPathCheckbox.position(width+25, 200);
+	onlyPathCheckbox.changed(function() {
+		onlyPath = !onlyPath;
 	});	
+	
+	drawVertexCheckbox = createButton("Show as Points");
+	drawVertexCheckbox.position(width+25, 230);
+	drawVertexCheckbox.mousePressed(function() {
+		if(drawVertex) {
+			drawVertexCheckbox.html("Show as Path");
+		} else {
+			drawVertexCheckbox.html("Show as Points");
+		}
+		drawVertex = !drawVertex;
+	});
+	
+	showDotCheckbox = createCheckbox("Show drawing point",true); // Initialize checkboxes
+	showDotCheckbox.position(width+25, 260);
+	showDotCheckbox.changed(function() {
+		showDot = !showDot;
+	});
 	
 	
 	
 	pathColorText = createP("Path Color");	
-	pathColorText.position(width+100, 200-12);
+	pathColorText.position(width+145, 290-13);
+	pathColorText.style("white-space","nowrap");
 	
-	pathColorSlider = createSlider(0,360,250,0);
-	pathColorSlider.position(width+10, 200);
-	pathColorSlider.style("width","70px");
+	pathColorSlider = createSlider(0,360,200,0);
+	pathColorSlider.position(width+25, 290);
+	pathColorSlider.style("width","100px");
 	pathColorSlider.input(function() {
 		pathColor = this.value();
 	});	
 		
+	pathSaturationText = createP("Path Saturation");	
+	pathSaturationText.position(width+145, 320-13);
+	pathSaturationText.style("white-space","nowrap");
+	
+	pathSaturationSlider = createSlider(0,100,100,0);
+	pathSaturationSlider.position(width+25, 320);
+	pathSaturationSlider.style("width","100px");
+	pathSaturationSlider.input(function() {
+		pathSaturation = this.value();
+	});		
+	
 	pathValueText = createP("Path Brightness");	
-	pathValueText.position(width+100, 230-12);
+	pathValueText.position(width+145, 350-13);
+	pathValueText.style("white-space","nowrap");
 	
 	pathValueSlider = createSlider(0,100,100,0);
-	pathValueSlider.position(width+10, 230);
-	pathValueSlider.style("width","70px");
+	pathValueSlider.position(width+25, 350);
+	pathValueSlider.style("width","100px");
 	pathValueSlider.input(function() {
 		pathValue = this.value();
 	});	
 	
+	
 	backgroundValueText = createP("Background Brightness");	
-	backgroundValueText.position(width+100, 260-12);
+	backgroundValueText.position(width+145, 380-13);
+	backgroundValueText.style("white-space","nowrap");
 	
 	backgroundValueSlider = createSlider(0,100,25,0);
-	backgroundValueSlider.position(width+10, 260);
-	backgroundValueSlider.style("width","70px");
+	backgroundValueSlider.position(width+25, 380);
+	backgroundValueSlider.style("width","100px");
 	backgroundValueSlider.input(function() {
 		backgroundValue = this.value();
 	});
@@ -160,7 +233,7 @@ function draw() {
 	
 	if(drawVertex) { // draw path as verticies
 		noFill();
-		stroke(pathColor, 100, pathValue);
+		stroke(pathColor, pathSaturation, pathValue);
 			strokeWeight(1);
 		beginShape();
 		path.forEach(function(a) {
@@ -168,7 +241,7 @@ function draw() {
 		});
 		endShape();
 	} else { // draw path as individual points
-		stroke(pathColor, 100, pathValue);	
+		stroke(pathColor, pathSaturation, pathValue);	
 		strokeWeight(1);
 		path.forEach(function(a) {
 			point(a.x, a.y);
