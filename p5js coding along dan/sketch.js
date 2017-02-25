@@ -14,7 +14,7 @@ var drawVertexCheckbox;
 function setup() {
 	createCanvas(600, 600);
 	
-	onlyPathCheckbox = createCheckbox("Show Circles",true);
+	onlyPathCheckbox = createCheckbox("Show Circles",true); // Initialize checkboxes
 	onlyPathCheckbox.position(width+10, 10);
 	onlyPathCheckbox.changed(function() {
 		onlyPath = !onlyPath;
@@ -27,17 +27,17 @@ function setup() {
 	});
 	
 	circle = new Circle(100, createVector(width/2,height/2), inc);
-	for (var i = 0; i < children; i++) {
+	for (var i = 0; i < children; i++) { // append ____ children to inital Circle
 		circle.addChildren();
 	}
 }
 
 function draw() {	
 	background(51);
-	circle.rotate();
+	circle.rotate(); // updates all circles (mind the recursion in the function)
 	circle.show();
 	
-	if(drawVertex) {
+	if(drawVertex) { // draw path as verticies
 		noFill();
 		beginShape();
 		path.forEach(function(a) {
@@ -45,7 +45,7 @@ function draw() {
 			vertex(a.x, a.y);
 		});
 		endShape();
-	} else {
+	} else { // draw path as individual points
 		path.forEach(function(a) {
 			stroke(0,255,0);	
 			point(a.x, a.y);
@@ -53,6 +53,6 @@ function draw() {
 	}
 	
 	while (path.length > 5000) { // improve perfomance by deleting previous points of path
-		path.splice(0,1); // Should maybe check, if it returned to it origin
+		path.splice(0,1); // Should maybe check, if it returned to it origin until it starts splicing
 	}
 }
