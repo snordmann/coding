@@ -1,8 +1,8 @@
 var circle;
 var path = [];
-var k = -3; // TODO: Slider for k
-var inc = 0.001; // maybe relate the increment to k and the number of children
-var children = 6;
+var k = -2; // TODO: Slider for k
+var inc = 0.005; // maybe relate the increment to k and the number of children
+var children = 5;
 
 var onlyPath = false;
 var onlyPathCheckbox;
@@ -47,10 +47,8 @@ function draw() {
 		endShape();
 	} else {
 		path.forEach(function(a) {
-			stroke(0,255,0);
-			strokeWeight(2);
+			stroke(0,255,0);	
 			point(a.x, a.y);
-			strokeWeight(1);
 		});
 	}
 	
