@@ -11,6 +11,11 @@ var kSlider;
 var kText;
 var kInput;
 
+var cSize = 100;
+var sizeSlider;
+var sizeText;
+var sizeInput;
+
 var initalspeed; // maybe relate the increment to k and the number of children
 var initalspeedSlider;
 var initalspeedText;
@@ -46,10 +51,13 @@ var backgroundValueSlider;
 var backgroundValueText;
 var backgroundValue = 25;
 
+var stopButton;
+var stoppedAnimation = false;
+
 function restartAnimation() {
 	path = [];
 	
-	circle = new Circle(100, createVector(width/2,height/2), initalspeed);
+	circle = new Circle(cSize, createVector(width/2,height/2), initalspeed);
 	for (var i = 0; i < children; i++) { // append ____ children to inital Circle
 		circle.addChildren();
 	}
@@ -130,7 +138,8 @@ function setup() {
 	kSlider.changed(function() {
 		k = this.value();
 		restartAnimation();
-	});
+	});	
+
 	
 	
 	initalspeedSlider = createSlider(0,1000,750,1);
@@ -147,20 +156,46 @@ function setup() {
 	initalspeedText.position(width+140, 130-13);
 	initalspeed = speedLog(initalspeedSlider.value());
 	
+		
+	sizeText = createP("Size:");	
+	sizeText.position(width+140, 170-13);
+	
+	sizeInput = createInput(cSize);
+	sizeInput.position(width+195, 170+2);
+	sizeInput.style("width","50px");
+	sizeInput.changed(function() {
+		cSize = parseFloat(this.value());
+		sizeSlider.value(cSize);
+		restartAnimation();
+	});
+	
+	sizeSlider = createSlider(50,275,cSize,5);
+	sizeSlider.position(width+25, 170);
+	sizeSlider.style("width","100px");
+	sizeSlider.input(function() {
+		sizeInput.value(this.value());
+	});
+	sizeSlider.changed(function() {
+		cSize = this.value();
+		restartAnimation();
+	});
+	
+	
+	//-------------------------------------------------------------------------------
 	
 	
 	var styleText = createP("Style changes:");
-	styleText.position(width + 10, 160);
+	styleText.position(width + 10, 200);
 	styleText.style("font-weight","bold");
 	
-	onlyPathCheckbox = createCheckbox("Show Circles",true); // Initialize checkboxes
-	onlyPathCheckbox.position(width+25, 200);
+	onlyPathCheckbox = createCheckbox("Show Circles",true);
+	onlyPathCheckbox.position(width+25, 240);
 	onlyPathCheckbox.changed(function() {
 		onlyPath = !onlyPath;
 	});	
 	
 	drawVertexCheckbox = createButton("Show as Points");
-	drawVertexCheckbox.position(width+25, 230);
+	drawVertexCheckbox.position(width+25, 270);
 	drawVertexCheckbox.mousePressed(function() {
 		if(drawVertex) {
 			drawVertexCheckbox.html("Show as Path");
@@ -170,8 +205,8 @@ function setup() {
 		drawVertex = !drawVertex;
 	});
 	
-	showDotCheckbox = createCheckbox("Show drawing point",true); // Initialize checkboxes
-	showDotCheckbox.position(width+25, 260);
+	showDotCheckbox = createCheckbox("Show drawing point",true);
+	showDotCheckbox.position(width+25, 300);
 	showDotCheckbox.changed(function() {
 		showDot = !showDot;
 	});
@@ -179,33 +214,33 @@ function setup() {
 	
 	
 	pathColorText = createP("Path Color");	
-	pathColorText.position(width+145, 290-13);
+	pathColorText.position(width+145, 330-13);
 	pathColorText.style("white-space","nowrap");
 	
 	pathColorSlider = createSlider(0,360,200,0);
-	pathColorSlider.position(width+25, 290);
+	pathColorSlider.position(width+25, 330);
 	pathColorSlider.style("width","100px");
 	pathColorSlider.input(function() {
 		pathColor = this.value();
 	});	
 		
 	pathSaturationText = createP("Path Saturation");	
-	pathSaturationText.position(width+145, 320-13);
+	pathSaturationText.position(width+145, 360-13);
 	pathSaturationText.style("white-space","nowrap");
 	
 	pathSaturationSlider = createSlider(0,100,100,0);
-	pathSaturationSlider.position(width+25, 320);
+	pathSaturationSlider.position(width+25, 360);
 	pathSaturationSlider.style("width","100px");
 	pathSaturationSlider.input(function() {
 		pathSaturation = this.value();
 	});		
 	
 	pathValueText = createP("Path Brightness");	
-	pathValueText.position(width+145, 350-13);
+	pathValueText.position(width+145, 390-13);
 	pathValueText.style("white-space","nowrap");
 	
 	pathValueSlider = createSlider(0,100,100,0);
-	pathValueSlider.position(width+25, 350);
+	pathValueSlider.position(width+25, 390);
 	pathValueSlider.style("width","100px");
 	pathValueSlider.input(function() {
 		pathValue = this.value();
@@ -213,14 +248,27 @@ function setup() {
 	
 	
 	backgroundValueText = createP("Background Brightness");	
-	backgroundValueText.position(width+145, 380-13);
+	backgroundValueText.position(width+145, 420-13);
 	backgroundValueText.style("white-space","nowrap");
 	
 	backgroundValueSlider = createSlider(0,100,25,0);
-	backgroundValueSlider.position(width+25, 380);
+	backgroundValueSlider.position(width+25, 420);
 	backgroundValueSlider.style("width","100px");
 	backgroundValueSlider.input(function() {
 		backgroundValue = this.value();
+	});
+	
+	stopButton = createButton("Pause animation");
+	stopButton.position(width + 25, 450);
+	stopButton.mousePressed(function() {
+		stoppedAnimation = !stoppedAnimation;
+		if(stoppedAnimation) {
+			noLoop();
+			stopButton.html("Resume animation");
+		} else {
+			loop();
+			stopButton.html("Pause animation");
+		}
 	});
 	
 	restartAnimation();
