@@ -263,10 +263,8 @@ function setup() {
 	stopButton.mousePressed(function() {
 		stoppedAnimation = !stoppedAnimation;
 		if(stoppedAnimation) {
-			noLoop();
 			stopButton.html("Resume animation");
 		} else {
-			loop();
 			stopButton.html("Pause animation");
 		}
 	});
@@ -276,8 +274,10 @@ function setup() {
 
 function draw() {	
 	background(0, 0, backgroundValue);
-	circle.rotate(); // updates all circles (mind the recursion in the function)
-	circle.show();
+	if (!stoppedAnimation) 
+		circle.rotate(); // updates all circles (mind the recursion in the function)
+	
+	circle.show();	
 	
 	if(drawVertex) { // draw path as verticies
 		noFill();
@@ -295,6 +295,4 @@ function draw() {
 			point(a.x, a.y);
 		});
 	}
-	
-	// TODO: plice path length, when it it back at its startpoint
 }
