@@ -7,12 +7,12 @@ PShape globe;
 
 void setup() {
   size(600,600,P3D);
-  table = loadTable("http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.csv", "header");  
+  table = loadTable("all_month.csv", "header");  
   earth = loadImage("earth.jpg");
   
   noStroke();
   globe = createShape(SPHERE, radius);
-  globe.setTexture(earth);
+  //globe.setTexture(earth);
 }
 
 void draw() {
@@ -23,9 +23,9 @@ void draw() {
   angle += 0.01;
   
   for (TableRow row : table.rows()) {
-    float lat = row.getFloat("latitude");
-    float lon = row.getFloat("longitude");
-    float mag = row.getFloat("mag");
+    float lat = row.getFloat(1);
+    float lon = row.getFloat(2);
+    float mag = row.getFloat(4);
     
     float x = tox(lat,lon);
     float y = toy(lat,lon);
