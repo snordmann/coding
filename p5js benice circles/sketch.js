@@ -4,12 +4,12 @@ var path;
 var showText = true;
 var ShowTextButton;
 
-var children = 2;
+var children = 3;
 var childrenSlider;
 var childrenText;
 var childrenInput;
 
-var k = -2.5; // TODO: Slider for k
+var k = -2;
 var kSlider;
 var kText;
 var kInput;
@@ -19,7 +19,7 @@ var sizeSlider;
 var sizeText;
 var sizeInput;
 
-var initalspeed; // maybe relate the increment to k and the number of children
+var initalspeed;
 var initalspeedSlider;
 var initalspeedText;
 var initalspeedInput;
