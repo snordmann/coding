@@ -14,8 +14,6 @@ function Particle(position, velocity, mass) {
 	} else {
 		this.mass = random(1,5);
 	}
-	this.lastPos = [];
-	this.trail = showTrail.checked();
 	this.acc = createVector(0, 0);
 	this.hu = random(360);
 	this.radius = 1;
@@ -60,18 +58,7 @@ function Particle(position, velocity, mass) {
 
 	this.show = function() {
 		stroke(this.hu, 255, 255);
-		if(this.trail) {
-			var len = this.lastPos.length;
-			for (var i = 0; i < len - 1; i++) {
-				line(this.lastPos[i].x,this.lastPos[i].y,this.lastPos[i+1].x,this.lastPos[i+1].y)
-			}
-		}
 		fill(this.hu,255,255);
 		ellipse(this.pos.x, this.pos.y, this.radius*2, this.radius*2);
-
-		this.lastPos.push(createVector(this.pos.x,this.pos.y));
-		if(len > 50) {
-			this.lastPos.splice(0,1);
-		}
 	}
 }
