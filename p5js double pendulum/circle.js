@@ -1,10 +1,12 @@
 class Circle {
   constructor (x,y,r,options) {
-    var pos = p5.Vector.random2D();
-    pos.setMag(25*r);
+    var deg = random(PI, TWO_PI);
+    var pos = p5.Vector.fromAngle(deg);
+    // var pos = p5.Vector.random2D();
+    pos.setMag(r);
     pos.x += x;
     pos.y += y;
-    this.body = Bodies.circle(pos.x,pos.y,r,options);
+    this.body = Bodies.circle(pos.x,pos.y,5,options);
     World.add(world, this.body);    
   }
   
