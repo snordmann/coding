@@ -1,71 +1,64 @@
-var Engine = Matter.Engine, // aliases for simpler Code
-  World = Matter.World,
-  Bodies = Matter.Bodies;
+var Theta1;
+var Theta2;
 
-var engine;
-var world;
-var boxA, boxB, boxC;
-var constraint;
+var dTheta1 = 0;
+var dTheta2 = 0;
+var d2Theta1 = 0;
+var d2Theta2 = 0;
+
+var l1 = 50;
+var l2 = 50;
+
+var m1 = 2;
+var m2 = 2;
+
+var mu = 1+ m1/m2;
+
+var g = 9.8;
 
 var path = [];
+
 function setup() {
   createCanvas(windowWidth, windowHeight);  
-  colorMode(HSB);
+  Theta1 = random(PI, TWO_PI);
+  Theta2 = random(PI, TWO_PI);
   
-  engine = Engine.create({
-    constraintIterations: 50,
-    positionIterations: 50,
-    velocityIterations: 50,
-  });  
-  world = engine.world;
+  l1 = width/8 - 4;
+  l2 = width/8 - 4;
   
-  boxA = Bodies.circle(width/2, height/2, 2,{isStatic: true, friction: 0, frictionAir: 0, frictionStatic: 0, collisionFilter: 0});
-  World.add(world, boxA);
-  
-  
-  var r = height < width ? height/4 : width/4;
-  r -= 2;
-  boxB = new Circle(width/2, height/2, r,{ inertia: Infinity, restitution: 1, friction: 0, frictionAir: 0, frictionStatic: 0},50);
-  boxC = new Circle(boxB.body.position.x, boxB.body.position.y, r,{ inertia: Infinity, restitution: 1, friction: 0, frictionAir: 0, frictionStatic: 0},50);
-  
-  
-  constraint = Matter.Constraint.create({
-    bodyA: boxA,
-    bodyB: boxB.body,
-    stiffness: 1,
-  });
-  World.add(world, constraint);
-  
-  constraint = Matter.Constraint.create({
-    bodyA: boxB.body,
-    bodyB: boxC.body,
-    stiffness: 1,
-  });
-  World.add(world, constraint);
-  
-  
-  Engine.run(engine);
-  noFill();
 }
 
 function draw() {
-  background(26);
+  background(51);
+  translate(width/2, height/2);
+  rotate(PI/2);
+  
+  d2Theta1  =  (g*(Math.sin(Theta2)*Math.cos(Theta1-Theta2)-mu*Math.sin(Theta1))-(l2*dTheta2*dTheta2+l1*dTheta1*dTheta1*Math.cos(Theta1-Theta2))*Math.sin(Theta1-Theta2))/(l1*(mu-Math.cos(Theta1-Theta2)*Math.cos(Theta1-Theta2)));
+  d2Theta2  =  (mu*g*(Math.sin(Theta1)*Math.cos(Theta1-Theta2)-Math.sin(Theta2))+(mu*l1*dTheta1*dTheta1+l2*dTheta2*dTheta2*Math.cos(Theta1-Theta2))*Math.sin(Theta1-Theta2))/(l2*(mu-Math.cos(Theta1-Theta2)*Math.cos(Theta1-Theta2)));
+  dTheta1   += d2Theta1*0.1;
+  dTheta2   += d2Theta2*0.1;
+  Theta1    += dTheta1*0.1;
+  Theta2    += dTheta2*0.1;
+  
+  var x1 = l1 * cos(Theta1);
+  var y1 = l1 * sin(Theta1);
+  var x2 = l2 * cos(Theta2);
+  var y2 = l2 * sin(Theta2);
+  x2 += x1;
+  y2 += y1;
+  
+  path.push([x2, y2]);
   
   stroke(255);
-  ellipse(boxA.position.x, boxA.position.y, boxA.circleRadius*2);
-  boxB.show();
-  boxC.show();
-  line(boxA.position.x, boxA.position.y, boxB.body.position.x, boxB.body.position.y);
-  line(boxB.body.position.x, boxB.body.position.y, boxC.body.position.x, boxC.body.position.y);
+  noFill();
+  ellipse (x1, y1, 6, 6);
+  ellipse (x2, y2, 6, 6);
+  line(0,0,x1,y1);
+  line(x1,y1,x2,y2);
   
-  for (var i = 0; i < path.length-1; i++) {
-    var hu = map(i, 0, 1200, 0, 360);
-    stroke(hu, 255, 255);
-    line(path[i].x,path[i].y, path[i+1].x, path[i+1].y);
-  }  
-  path.push(createVector(boxC.body.position.x, boxC.body.position.y));
-  // path.push(createVector(boxB.body.position.x, boxB.body.position.y));
-  
-  if(frameCount > 1200)
-    window.location.reload();
+  beginShape();
+  path.forEach(function(p) {
+    vertex(p[0],p[1]);
+  });
+  endShape();
 }
