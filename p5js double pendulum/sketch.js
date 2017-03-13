@@ -9,28 +9,31 @@ var d2Theta2 = 0;
 var l1 = 50;
 var l2 = 50;
 
-var m1 = 2;
-var m2 = 2;
+var m1 = 1;
+var m2 = 1;
 
 var mu = 1+ m1/m2;
 
 var g = 9.8;
 
 var path = [];
+var path1 = [];
+
 
 function setup() {
   createCanvas(windowWidth, windowHeight);  
-  Theta1 = random(PI, TWO_PI);
-  Theta2 = random(PI, TWO_PI);
+  colorMode(HSB);
+  Theta1 = random(0, TWO_PI);
+  Theta2 = random(0, TWO_PI);
   
-  l1 = width/8 - 4;
-  l2 = width/8 - 4;
+  l1 = width/8 - 2;
+  l2 = width/8 - 2;
   
 }
 
 function draw() {
-  background(51);
-  translate(width/2, height/2);
+  background(21);
+  translate(width/2, height/2-10);
   rotate(PI/2);
   
   d2Theta1  =  (g*(Math.sin(Theta2)*Math.cos(Theta1-Theta2)-mu*Math.sin(Theta1))-(l2*dTheta2*dTheta2+l1*dTheta1*dTheta1*Math.cos(Theta1-Theta2))*Math.sin(Theta1-Theta2))/(l1*(mu-Math.cos(Theta1-Theta2)*Math.cos(Theta1-Theta2)));
@@ -48,17 +51,27 @@ function draw() {
   y2 += y1;
   
   path.push([x2, y2]);
+  path1.push([x1, y1]);
   
-  stroke(255);
+  stroke(150, 100,100);
   noFill();
-  ellipse (x1, y1, 6, 6);
-  ellipse (x2, y2, 6, 6);
   line(0,0,x1,y1);
   line(x1,y1,x2,y2);
   
-  beginShape();
-  path.forEach(function(p) {
-    vertex(p[0],p[1]);
-  });
-  endShape();
+  for (var i = 0; i < path.length -1; i++) {
+    var hu = map(i, 0, path.length-1, 26, 100);
+    stroke(hu);
+    line(path[i][0], path[i][1], path[i+1][0], path[i+1][1]);
+  }  
+  for (var i = 0; i < path1.length -1; i++) {
+    var hu = map(i, 0, path1.length-1, 21,100);
+    stroke(hu);
+    line(path1[i][0], path1[i][1], path1[i+1][0], path1[i+1][1]);
+  }
+  
+  if (path.length > 100) 
+    path.splice(0,1);
+  
+  if (path1.length > 25) 
+    path1.splice(0,1);
 }
