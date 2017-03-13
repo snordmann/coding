@@ -9,31 +9,42 @@ var d2Theta2 = 0;
 var l1 = 50;
 var l2 = 50;
 
+var m1 = 1;
+var m2 = 1;
+var mu = 2;
+
 var g = 9.8;
 var time = 0.1;
 
 var path = [];
+var col = 0;
 
 
 function setup() {
   createCanvas(windowWidth, windowHeight);  
-  colorMode(HSB);
+  colorMode(HSB,255,255,255,1000);
   Theta1 = random(0, TWO_PI);
   Theta2 = random(0, TWO_PI);
   
-  l1 = width > height ? height/4 : width/4;
-  l2 = width > height ? height/4 : width/4;
+  var vhl = random(0.25,0.75);
+  l1 = height < width ? height/2 * vhl - 5 : width /2 * vhl - 5;
+  l2 = height < width ? height/2 * (1-vhl) - 5 : width /2 * (1-vhl) - 5;
   
+  
+  m1 = random(1,10);
+  m2 = random(0.1,m1);
+  mu =  1+m1/m2;
 }
 
 function draw() {
-  background(21);
-  translate(width/2, height/2-10);
+  background(0,0,51);
+  col += 0.25;
+  translate(width/2, height/2);
   rotate(PI/2);
   
   //use math functions, for faster computing
-  d2Theta1  =  (g*(Math.sin(Theta2)*Math.cos(Theta1-Theta2)-2*Math.sin(Theta1))-(l2*dTheta2*dTheta2+l1*dTheta1*dTheta1*Math.cos(Theta1-Theta2))*Math.sin(Theta1-Theta2))/(l1*(2-Math.cos(Theta1-Theta2)*Math.cos(Theta1-Theta2)));
-  d2Theta2  =  (2*g*(Math.sin(Theta1)*Math.cos(Theta1-Theta2)-Math.sin(Theta2))+(2*l1*dTheta1*dTheta1+l2*dTheta2*dTheta2*Math.cos(Theta1-Theta2))*Math.sin(Theta1-Theta2))/(l2*(2-Math.cos(Theta1-Theta2)*Math.cos(Theta1-Theta2)));
+  d2Theta1  =  (g*(Math.sin(Theta2)*Math.cos(Theta1-Theta2)-mu*Math.sin(Theta1))-(l2*dTheta2*dTheta2+l1*dTheta1*dTheta1*Math.cos(Theta1-Theta2))*Math.sin(Theta1-Theta2))/(l1*(mu-Math.cos(Theta1-Theta2)*Math.cos(Theta1-Theta2)));
+  d2Theta2  =  (mu*g*(Math.sin(Theta1)*Math.cos(Theta1-Theta2)-Math.sin(Theta2))+(mu*l1*dTheta1*dTheta1+l2*dTheta2*dTheta2*Math.cos(Theta1-Theta2))*Math.sin(Theta1-Theta2))/(l2*(mu-Math.cos(Theta1-Theta2)*Math.cos(Theta1-Theta2)));
   dTheta1   += d2Theta1*time;
   dTheta2   += d2Theta2*time;
   Theta1    += dTheta1*time;
@@ -48,16 +59,16 @@ function draw() {
   
   path.push([x2, y2]);
   
-  stroke(150, 100,100);
+  stroke(0, 0,255);
   line(0,0,x1,y1);
   line(x1,y1,x2,y2);
   
   for (var i = 0; i < path.length -1; i++) {
-    var hu = map(i, 0, 100, 21, 100);
-    stroke(200,hu,hu);
+    var hu = map(i, 0, path.length -1, 0, 1000);
+    stroke((col+180)%359,255,255,hu);
     line(path[i][0], path[i][1], path[i+1][0], path[i+1][1]);
   }  
   
-  if (path.length > 100) 
+  if (path.length > 500) 
     path.splice(0,1);
 }
