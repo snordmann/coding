@@ -1,18 +1,17 @@
-var mapimg;
+var mapimg; // Das Bild der Karte
 
-var clat = 0;
+// Einige Konstanten, für die Karte
+var clat = 0;//Mittelpunkt der Karte
 var clon = 0;
-
-var ww = 1024;
+var ww = 1024;// Höhe und Weite der Karte
 var hh = 512;
+var zoom = 1;//Zoomlevel(immer Exponent von 2)
 
-var zoom = 1;
-
-var points = [];
-var latlons = [["54.009","9.0755","Meldorf"],
+var points = []; // Liste der x,y Koordinaten der Punkte (wird später initialisiert)
+var latlons = [["54.009","9.0755","Meldorf"], // Liste der Koordinaten und Weiterleitungen
                ["40.7128","-74.0059","New York"]];
 
-function preload() {
+function preload() { // lade das Bild
   mapimg = loadImage('https://api.mapbox.com/styles/v1/mapbox/satellite-v9/static/' +
     clat + ',' + clon + ',' + zoom + '/' +
     ww + 'x' + hh +
@@ -20,14 +19,14 @@ function preload() {
 
 }
 
-function mercX(lon) {
+function mercX(lon) { // Konvertiere Längengrad nach X
   lon = radians(lon);
   var a = (256 / PI) * pow(2, zoom);
   var b = lon + PI;
   return a * b;
 }
 
-function mercY(lat) {
+function mercY(lat) { // Konvertiere Breitengrad nach Y
   lat = radians(lat);
   var a = (256 / PI) * pow(2, zoom);
   var b = tan(PI / 4 + lat / 2);
@@ -37,42 +36,41 @@ function mercY(lat) {
 
 
 function setup() {
-  createCanvas(ww, hh);
+  createCanvas(ww, hh); // Mche ein Canvas, genau so groß wie die Karte
 
   var cx = mercX(clon);
   var cy = mercY(clat);
 
 
-  latlons.forEach(function(l) {
+  latlons.forEach(function(l) { // Berechne 
     var x = mercX(l[1]) - cx;
     var y = mercY(l[0]) - cy;
-    points.push([x, y, l[2]]);
+    points.push([x, y, l[2]]); // Füge Koordinaten zum XY-Array hinzu(spart rechenleistung)
   });
 }
 function draw() {
-  translate(width / 2, height / 2);
+  translate(width / 2, height / 2); // Alles in die Mitte verschieben
   imageMode(CENTER);
   image(mapimg, 0, 0);
-  noStroke();
+  noStroke(); //Keine Rahmen anzeigen
   
-  points.forEach(function(p) {
-    var d = floor(dist(mouseX-width/2, mouseY-height/2, p[0], p[1]));
-    console.log(d);
-    if (d <= 3) {
+  points.forEach(function(p) { // Iteriere durch alle Punkte
+    var d = floor(dist(mouseX-width/2, mouseY-height/2, p[0], p[1])); //Errechne die Distanz zur Maus
+    if (d <= 3) {//Mache den Punkt weiß, wenn der innerhalb des Punkts ist
       fill(255, 255, 255);
     } else {
       fill(255, 0, 0);
     }
-    ellipse(p[0], p[1], 6, 6);
+    ellipse(p[0], p[1], 6);// Punkt mit Durchmesser 6 = Radius 3
   });
 
 }
 
 function mouseClicked() {
-  points.forEach(function(p) {
+  points.forEach(function(p) { // Falls auf einen Punkt geklickt wurde
     var d = floor(dist(mouseX-width/2, mouseY-height/2, p[0], p[1]));
     if (d <= 3) {
-      window.location.href = "#" + p[2];
+      window.location.href = "#" + p[2];//Weiterleitung auf #Name
     }
   });
 }
