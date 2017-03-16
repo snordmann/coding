@@ -36,8 +36,9 @@ function mercY(lat) { // Konvertiere Breitengrad nach Y
 
 
 function setup() {
-  createCanvas(ww, hh); // Mche ein Canvas, genau so groß wie die Karte
-
+  var c = createCanvas(ww, hh); // Mche ein Canvas, genau so groß wie die Karte
+  c.parent("mapArea");
+  
   var cx = mercX(clon);
   var cy = mercY(clat);
 
