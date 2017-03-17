@@ -12,6 +12,8 @@ var l2 = 50;
 var m1 = 1;
 var m2 = 1;
 var mu = 2;
+var r1 = 5;
+var r2 = 5;
 
 var g = 9.8;
 var time = 0.1;
@@ -22,22 +24,27 @@ var col = 0;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);  
-  colorMode(HSB,255,255,255,1000);
-  Theta1 = random(0, TWO_PI);
-  Theta2 = random(0, TWO_PI);
+  Theta1 = random(PI/2, 3*PI/2);
+  Theta2 = random(PI/2, 3*PI/2);
   
-  var vhl = random(0.25,0.75);
+  var vhl = random(0.35,0.65);
   l1 = height < width ? height/2 * vhl - 5 : width /2 * vhl - 5;
   l2 = height < width ? height/2 * (1-vhl) - 5 : width /2 * (1-vhl) - 5;
   
   
   m1 = random(1,10);
-  m2 = random(0.1,m1);
+  m2 = random(1,10);
   mu =  1+m1/m2;
+  
+  r1 = map(m1, 1, 10, 5, 20);
+  r2 = map(m2, 1, 10, 5, 20);
+  fill(100,255,100);
+  
 }
 
 function draw() {
-  background(0,0,51);
+  background(51);
+  
   col += 0.25;
   translate(width/2, height/2);
   rotate(PI/2);
@@ -59,16 +66,21 @@ function draw() {
   
   path.push([x2, y2]);
   
-  stroke(0, 0,255);
-  line(0,0,x1,y1);
-  line(x1,y1,x2,y2);
+
+  
   
   for (var i = 0; i < path.length -1; i++) {
-    var hu = map(i, 0, path.length -1, 0, 1000);
-    stroke((col+180)%359,255,255,hu);
+    var hu = map(i, 0, path.length -1, 0, 255);
+    stroke(255, hu);
     line(path[i][0], path[i][1], path[i+1][0], path[i+1][1]);
   }  
+    
   
+  stroke(100,255,100);
+  line(0,0,x1,y1);
+  line(x1,y1,x2,y2);
+  ellipse(x1,y1,r1);
+  ellipse(x2,y2,r2);
   if (path.length > 500) 
     path.splice(0,1);
 }
