@@ -1,31 +1,30 @@
 var Theta1;
 var Theta2;
 
-var dTheta1 = 0;
+var dTheta1 = 0;//variables for math functions
 var dTheta2 = 0;
 var d2Theta1 = 0;
 var d2Theta2 = 0;
 
-var l1 = 50;
+var l1 = 50;//length of pendulums
 var l2 = 50;
 
-var m1 = 1;
+var m1 = 1;//masses
 var m2 = 1;
 var mu = 2;
-var r1 = 5;
+var r1 = 5;//radii
 var r2 = 5;
 
 var g = 9.8;
-var time = 0.1;
+var time = 0.1;//lower values -> higher accuracy
 
 var path = [];
-var col = 0;
 
 
 function setup() {
   createCanvas(windowWidth, windowHeight);  
   Theta1 = random(PI/2, 3*PI/2);
-  Theta2 = random(PI/2, 3*PI/2);
+  Theta2 = random(0, TWO_PI);
   
   var vhl = random(0.35,0.65);
   l1 = height < width ? height/2 * vhl - 5 : width /2 * vhl - 5;
@@ -44,8 +43,6 @@ function setup() {
 
 function draw() {
   background(51);
-  
-  col += 0.25;
   translate(width/2, height/2);
   rotate(PI/2);
   
@@ -57,30 +54,30 @@ function draw() {
   Theta1    += dTheta1*time;
   Theta2    += dTheta2*time;
   
-  var x1 = l1 * cos(Theta1);
+  var x1 = l1 * cos(Theta1);//translate polar to carthesian
   var y1 = l1 * sin(Theta1);
   var x2 = l2 * cos(Theta2);
   var y2 = l2 * sin(Theta2);
   x2 += x1;
   y2 += y1;
   
-  path.push([x2, y2]);
+  path.push([x2, y2]);//adding newest point to path
   
 
   
   
-  for (var i = 0; i < path.length -1; i++) {
+  for (var i = 0; i < path.length -1; i++) {//showing path
     var hu = map(i, 0, path.length -1, 0, 255);
     stroke(255, hu);
     line(path[i][0], path[i][1], path[i+1][0], path[i+1][1]);
   }  
     
+  if (path.length > 500) //Path should not be longer than 500 entries
+    path.splice(0,1);
   
-  stroke(100,255,100);
+  stroke(100,255,100);//Show lines and masses
   line(0,0,x1,y1);
   line(x1,y1,x2,y2);
   ellipse(x1,y1,r1);
   ellipse(x2,y2,r2);
-  if (path.length > 500) 
-    path.splice(0,1);
 }
