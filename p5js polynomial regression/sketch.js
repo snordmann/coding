@@ -7,25 +7,33 @@
 
 let x_vals = [];
 let y_vals = [];
+let clearPointsButton;
 
 let orderPoly = 3;
 let orderPolySlider;
 let learningRate = 0.2;
 let learningRateSlider;
 
+
 let operands = [];
 let operandsTextHolder;
 
 let optimizer = tf.train.adam(learningRate);
 
-function sliderChanged() {
+function updateOrder() {
   orderPoly = orderPolySlider.value();
-  learningRateValue = learningRateSlider.value();
-  initTF();
+  initOperands();
+}
+function updateLearningRate() {
+  learningRate = learningRateSlider.value();
+  optimizer = tf.train.adam(learningRate);
+}
+function clearPoints () {
+  x_vals = [];
+  y_vals = [];
 }
 
-function initTF() {
-
+function initOperands() {
   operands = [];
   for(let i = 0; i <= orderPoly; i++) {
     operands.push(tf.variable(tf.scalar(random(-1,1))));
@@ -38,20 +46,22 @@ function setup() {
   orderPolySlider = select("#orderPolySlider");
   learningRateSlider = select("#learningRateSlider");
   operandsTextHolder = select("#outputs");
+  clearPointsButton = select("#clearPointsButton");
 
   orderPolySlider.value(orderPoly);
-  orderPolySlider.changed(sliderChanged);
+  orderPolySlider.changed(updateOrder);
   learningRateSlider.value(learningRate);
-  learningRateSlider.changed(sliderChanged);
+  learningRateSlider.changed(updateLearningRate);
+  clearPointsButton.mouseClicked(clearPoints);
 
-  canvas.mouseClicked(() => {
+  canvas.mousePressed(() => {
     let x = map(mouseX, 0, width, -1, 1);
     let y = map(mouseY, 0, height, 1, -1);
     x_vals.push(x);
     y_vals.push(y);
-  })
+  });
 
-  initTF();
+  initOperands();
 }
 
 function loss(pred, labels) {
@@ -72,6 +82,14 @@ function predict(x) {
 }
 
 function draw() {
+  if (x_vals.length == 0 ) {
+    console.log();
+    if (!clearPointsButton.class().includes("disabled")) {
+      clearPointsButton.addClass("disabled")
+    }
+  } else {
+    clearPointsButton.removeClass("disabled")
+  }
   tf.tidy(() => {
     if (x_vals.length > 0) {
       const ys = tf.tensor1d(y_vals);
@@ -96,7 +114,7 @@ function draw() {
   background(0);
 
   stroke(255);
-  strokeWeight(8);
+  strokeWeight(4);
   for (let i = 0; i < x_vals.length; i++) {
     let px = map(x_vals[i], -1, 1, 0, width);
     let py = map(y_vals[i], -1, 1, height, 0);
