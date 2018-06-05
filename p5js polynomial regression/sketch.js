@@ -70,12 +70,12 @@ function setup() {
   canvas.mousePressed(() => {
     dragged = true;
   });
-  canvas.mouseReleased(() => {
-    dragged = false;
-  });
 
   initOperands();
   setSize();
+}
+function mouseReleased() {
+  dragged = false;
 }
 
 function draw() {
