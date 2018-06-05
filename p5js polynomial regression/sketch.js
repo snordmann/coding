@@ -5,6 +5,8 @@
 // Polynomial Regression with TensorFlow.js
 // Video: https://youtu.be/tIXDik5SGsI
 
+let canvas;
+
 let x_vals = [];
 let y_vals = [];
 let clearPointsButton;
@@ -40,10 +42,20 @@ function initOperands() {
     operands.push(tf.variable(tf.scalar(random(-1,1))));
   }
 }
+let setSize = function() {
+  let parentWidth = $("#demo").width();
+  let size = parentWidth < windowHeight ? parentWidth : windowHeight;
+  resizeCanvas(size, size);
+}
+
+function windowResized() {
+  setSize();
+}
 
 function setup() {
-  var canvas = createCanvas(500, 500);
+  canvas = createCanvas(500, 500);
   canvas.parent('demo');
+
   orderPolySlider = select("#orderPolySlider");
   learningRateSlider = select("#learningRateSlider");
   operandsTextHolder = select("#outputs");
@@ -63,6 +75,7 @@ function setup() {
   });
 
   initOperands();
+  setSize();
 }
 
 function draw() {
