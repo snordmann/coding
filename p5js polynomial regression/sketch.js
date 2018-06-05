@@ -8,6 +8,7 @@
 let x_vals = [];
 let y_vals = [];
 let clearPointsButton;
+let dragged = false;
 
 let orderPoly = 3;
 let orderPolySlider;
@@ -55,10 +56,10 @@ function setup() {
   clearPointsButton.mouseClicked(clearPoints);
 
   canvas.mousePressed(() => {
-    let x = map(mouseX, 0, width, -1, 1);
-    let y = map(mouseY, 0, height, 1, -1);
-    x_vals.push(x);
-    y_vals.push(y);
+    dragged = true;
+  });
+  canvas.mouseReleased(() => {
+    dragged = false;
   });
 
   initOperands();
@@ -66,7 +67,6 @@ function setup() {
 
 function draw() {
   if (x_vals.length == 0 ) {
-    console.log();
     if (!clearPointsButton.class().includes("disabled")) {
       clearPointsButton.addClass("disabled")
     }
@@ -74,7 +74,15 @@ function draw() {
     clearPointsButton.removeClass("disabled")
   }
 
+  if(dragged) {
+    let x = map(mouseX, 0, width, -1, 1);
+    let y = map(mouseY, 0, height, 1, -1);
+    x_vals.push(x);
+    y_vals.push(y);
+  } else {
     train(x_vals, y_vals);
+  }
+
   let output = [];
   for(let i = 0; i <= orderPoly; i++) {
     const coef = operands[i].dataSync()[0].toFixed(2);
