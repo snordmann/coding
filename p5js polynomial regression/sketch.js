@@ -64,23 +64,6 @@ function setup() {
   initOperands();
 }
 
-function loss(pred, labels) {
-  return pred.sub(labels).square().mean();
-}
-
-function predict(x) {
-  const xs = tf.tensor1d(x);
-  let ys = tf.variable(tf.zerosLike(xs));
-  for (let i = 0; i <= orderPoly; i++) {
-    const coef = operands[i];
-    const pow_ts = tf.fill(xs.shape, i);
-    const sum = tf.add(ys, operands[i].mul(xs.pow(pow_ts)));
-    ys.dispose();
-    ys = sum.clone();
-  }
-  return ys;
-}
-
 function draw() {
   if (x_vals.length == 0 ) {
     console.log();
@@ -90,13 +73,8 @@ function draw() {
   } else {
     clearPointsButton.removeClass("disabled")
   }
-  tf.tidy(() => {
-    if (x_vals.length > 0) {
-      const ys = tf.tensor1d(y_vals);
-      optimizer.minimize(() => loss(predict(x_vals), ys));
-    }
-  });
 
+    train(x_vals, y_vals);
   let output = [];
   for(let i = 0; i <= orderPoly; i++) {
     const coef = operands[i].dataSync()[0].toFixed(2);
