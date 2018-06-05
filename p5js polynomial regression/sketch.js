@@ -74,15 +74,9 @@ function setup() {
   initOperands();
   setSize();
 }
-<<<<<<< HEAD
 function mouseReleased() {
   dragged = false;
 }
-=======
-mouseReleased(() => {
-  dragged = false;
-});
->>>>>>> 0efdc0ae46a5a6d4ee4dd858948d65daebd5b664
 
 function draw() {
   if (x_vals.length == 0 ) {
