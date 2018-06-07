@@ -2,6 +2,9 @@ let canvas
 let outputDiv
 let inputDiv
 
+let xvals = []
+let yvals = []
+
 const optimizer = tf.train.adam(0.01)
 const model = tf.sequential()
 
@@ -17,7 +20,7 @@ model.add(tf.layers.dense({
 }))
 model.add(tf.layers.dense({
   units: 1,
-  activation: 'relu'
+  activation: 'tanh'
 }))
 
 // Prepare the model for training: Specify the loss and the optimizer.
@@ -35,10 +38,18 @@ let ydata = xdata.map((el) => {
 const xs = tf.tensor(xdata)
 const ys = tf.tensor(ydata)
 
-async function train() {
-  return await model.fit(xs,ys,{
-    epochs: 2
-  })
+async function train(input, target) {
+  let response = undefined
+  if (input.length > 0) {
+    let xs = tf.tensor(input)
+    let ys = tf.tensor(target)
+    response = await model.fit(xs,ys,{
+      epochs: 1
+    })
+    xs.dispose()
+    ys.dispose()
+  }
+  return response
 }
 
 
@@ -59,19 +70,73 @@ function setup() {
 
 function draw() {
   background(51)
-
-  tf.tidy(() => {
-    train().then((response) => {
-      response.model.predict(tf.tensor([
-        [-1,-1],
-        [-1,1],
-        [1,-1],
-        [1,1],
-      ])).print()
+  strokeWeight(1)
+  let curveX = [];
+  let curveY = [];
+  if(xvals.length > 0) {
+    train(xvals, yvals).then((response) => {
+      for (let x = -1; x <= 1; x += 0.1) {
+        for (let y = -1; y <= 1; y += 0.1) {
+          curveX.push([x,y]);
+        }
+      }
+      const ys = tf.tidy(() => response.model.predict(tf.tensor(curveX)));
+      curveY = ys.dataSync();
+      ys.dispose();
+      for (let i = 0; i < curveX.length; i++) {
+        let label = curveY[i] < 0
+        let x = map(curveX[i][0], -1, 1, 0, width);
+        let y = map(curveX[i][1], -1, 1, height, 0);
+        if (label) {
+          stroke(155, 123, 83)
+        } else {
+          stroke(96, 131, 147)
+        }
+        point(x, y)
+      }
     })
-  })
+  }
+  strokeWeight(4)
+  for (let i = 0; i < xvals.length; i++) {
+    label = yvals[i] < 0
+    let px = map(xvals[i][0], -1, 1, 0, width)
+    let py = map(xvals[i][1], -1, 1, height, 0)
+    if (label) {
+      stroke(251, 140, 0)
+    } else {
+      stroke(3, 155, 229)
+    }
+    point(px, py)
+  }
+
+
+
 }
 
 function windowResized() {
   setSize()
 }
+$(document).ready(() => {
+  $('#demo').mousedown(function(event) {
+    let xval = map(mouseX, 0, width, -1, 1)
+    let yval = map(mouseY, height, 0, -1, 1)
+    switch (event.which) {
+      case 1: // LEFT mouse
+        event.preventDefault();
+        xvals.push([xval,yval])
+        yvals.push([1])
+        break;
+      case 2: // MIDDLE mouse
+        break;
+      case 3: // RIGHT mouse
+        xvals.push([xval,yval])
+        yvals.push([-1])
+        event.preventDefault();
+        break;
+      default: //OTHERS
+    }
+  });
+  $('#demo').bind("contextmenu",function(e){
+    return false;
+  });
+})
