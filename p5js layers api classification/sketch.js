@@ -88,9 +88,9 @@ function draw() {
         let x = map(curveX[i][0], -1, 1, 0, width);
         let y = map(curveX[i][1], -1, 1, height, 0);
         if (label) {
-          stroke(155, 123, 83)
+          stroke(150,150,51)
         } else {
-          stroke(96, 131, 147)
+          stroke(51,51,150)
         }
         point(x, y)
       }
@@ -102,9 +102,9 @@ function draw() {
     let px = map(xvals[i][0], -1, 1, 0, width)
     let py = map(xvals[i][1], -1, 1, height, 0)
     if (label) {
-      stroke(251, 140, 0)
+      stroke(255, 255, 150)
     } else {
-      stroke(3, 155, 229)
+      stroke(150, 150, 255)
     }
     point(px, py)
   }
