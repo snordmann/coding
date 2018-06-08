@@ -26,18 +26,6 @@ model.add(tf.layers.dense({
 // Prepare the model for training: Specify the loss and the optimizer.
 model.compile({loss: tf.losses.meanSquaredError, optimizer})
 
-// Generate some synthetic data for training.
-let xdata = Array.apply(null, Array(100)).map(() => {
-  return [Math.random(1)*2-1, Math.random(1)*2-1]
-})
-let ydata = xdata.map((el) => {
-  if ((el[0] > 0 && el[1] > 0) || (el[0] <= 0 && el[1] <= 0))
-    return [0]
-  return [1]
-})
-const xs = tf.tensor(xdata)
-const ys = tf.tensor(ydata)
-
 async function train(input, target) {
   let response = undefined
   if (input.length > 0) {
