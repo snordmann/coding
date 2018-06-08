@@ -32,7 +32,8 @@ async function train(input, target) {
     let xs = tf.tensor(input)
     let ys = tf.tensor(target)
     response = await model.fit(xs,ys,{
-      epochs: 1
+      shuffle: true,
+      epochs: 10,
     })
     xs.dispose()
     ys.dispose()
@@ -58,12 +59,46 @@ function setup() {
 
 function draw() {
   background(51)
-  strokeWeight(1)
-  let curveX = [];
-  let curveY = [];
+
   if(xvals.length > 0) {
     train(xvals, yvals).then((response) => {
-      for (let x = -1; x <= 1; x += 0.1) {
+      let resolution = 100;
+      let cols = width / resolution;
+      let rows = height / resolution;
+      let inputs = []
+      for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+          let x1 = map(i / cols,0,width,-1,1);
+          let x2 = map(j / rows,height,0,-1,1);
+          inputs.push( [x1, x2] );
+        }
+      }
+      let y = [];
+      tf.tidy(() => {
+        let ys = response.model.predict(tf.tensor(inputs));
+        y = ys.dataSync();
+        ys.dispose();
+      })
+      let index = 0
+      for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+          noStroke()
+          if(y[index] === undefined) fill(255,255,255,50)
+          else {
+            if (y[index] < 0) {
+              fill(150,150,51,50)
+            } else {
+              fill(51,51,150,50)
+            }
+          }
+          rect(i * resolution, j * resolution, resolution, resolution);
+          fill(255)
+          textAlign(CENTER,CENTER)
+          text(nf(y[index],2, 2), i * resolution+resolution/2, j * resolution+resolution/2)
+          index++;
+        }
+      }
+      /*for (let x = -1; x <= 1; x += 0.1) {
         for (let y = -1; y <= 1; y += 0.1) {
           curveX.push([x,y]);
         }
@@ -81,9 +116,10 @@ function draw() {
           stroke(51,51,150)
         }
         point(x, y)
-      }
+      }*/
     })
   }
+
   strokeWeight(4)
   for (let i = 0; i < xvals.length; i++) {
     label = yvals[i] < 0
@@ -96,7 +132,6 @@ function draw() {
     }
     point(px, py)
   }
-
 
 
 }
