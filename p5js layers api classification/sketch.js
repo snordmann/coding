@@ -13,10 +13,12 @@ model.add(tf.layers.dense({
   inputShape:[2],
   units: 8,
   activation: 'relu'
+  activation: 'tanh'
 }))
 model.add(tf.layers.dense({
   units: 4,
   activation: 'relu'
+  activation: 'tanh'
 }))
 model.add(tf.layers.dense({
   units: 1,
