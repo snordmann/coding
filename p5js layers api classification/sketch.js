@@ -5,19 +5,22 @@ let inputDiv
 let xvals = []
 let yvals = []
 
+let inputs
+let resolution = 25;
+let cols
+let rows
 const optimizer = tf.train.adam(0.01)
 const model = tf.sequential()
+
 
 
 model.add(tf.layers.dense({
   inputShape:[2],
   units: 8,
-  activation: 'relu'
   activation: 'tanh'
 }))
 model.add(tf.layers.dense({
   units: 4,
-  activation: 'relu'
   activation: 'tanh'
 }))
 model.add(tf.layers.dense({
@@ -48,6 +51,17 @@ let setSize = function() {
   let parentWidth = $("#demo").width()
   let size = parentWidth < windowHeight ? parentWidth : windowHeight
   resizeCanvas(size, size)
+
+  cols = width / resolution
+  rows = height / resolution
+  inputs = []
+  for (let i = 0; i < cols; i++) {
+    for (let j = 0; j < rows; j++) {
+      let x1 = map(i * resolution, 0,  width, -1, 1);
+      let x2 = map(j * resolution, height, 0, -1, 1);
+      inputs.push( [x1, x2] );
+    }
+  }
 }
 
 function setup() {
@@ -58,79 +72,52 @@ function setup() {
   outputDiv = select("#output")
   inputDiv = select("#input")
 }
+function hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
 
 function draw() {
-  background(51)
+  background(255)
 
-  if(xvals.length > 0) {
-    train(xvals, yvals).then((response) => {
-      let resolution = 100;
-      let cols = width / resolution;
-      let rows = height / resolution;
-      let inputs = []
-      for (let i = 0; i < cols; i++) {
-        for (let j = 0; j < rows; j++) {
-          let x1 = map(i / cols,0,width,-1,1);
-          let x2 = map(j / rows,height,0,-1,1);
-          inputs.push( [x1, x2] );
-        }
-      }
-      let y = [];
-      tf.tidy(() => {
-        let ys = response.model.predict(tf.tensor(inputs));
-        y = ys.dataSync();
-        ys.dispose();
-      })
-      let index = 0
-      for (let i = 0; i < cols; i++) {
-        for (let j = 0; j < rows; j++) {
-          noStroke()
-          if(y[index] === undefined) fill(255,255,255,50)
-          else {
-            if (y[index] < 0) {
-              fill(150,150,51,50)
-            } else {
-              fill(51,51,150,50)
-            }
-          }
-          rect(i * resolution, j * resolution, resolution, resolution);
-          fill(255)
-          textAlign(CENTER,CENTER)
-          text(nf(y[index],2, 2), i * resolution+resolution/2, j * resolution+resolution/2)
-          index++;
-        }
-      }
-      /*for (let x = -1; x <= 1; x += 0.1) {
-        for (let y = -1; y <= 1; y += 0.1) {
-          curveX.push([x,y]);
-        }
-      }
-      const ys = tf.tidy(() => response.model.predict(tf.tensor(curveX)));
-      curveY = ys.dataSync();
+  train(xvals, yvals).then((response) => {
+    let y = [];
+    tf.tidy(() => {
+      let ys = model.predict(tf.tensor(inputs));
+      y = ys.dataSync();
       ys.dispose();
-      for (let i = 0; i < curveX.length; i++) {
-        let label = curveY[i] < 0
-        let x = map(curveX[i][0], -1, 1, 0, width);
-        let y = map(curveX[i][1], -1, 1, height, 0);
-        if (label) {
-          stroke(150,150,51)
-        } else {
-          stroke(51,51,150)
-        }
-        point(x, y)
-      }*/
     })
-  }
+    noStroke()
 
-  strokeWeight(4)
+    let tmpScale = d3.scale.linear().domain([0, .5, 1]).range(["#f59322", "#e8eaeb", "#0877bd"]).clamp(!0)
+
+    let index = 0
+    for (let i = 0; i < cols; i++) {
+      for (let j = 0; j < rows; j++) {
+        if(y[index] === undefined) fill(255,255,255,50)
+        else {
+          let c = hexToRgb(tmpScale(y[index]))
+          fill(c.r,c.g,c.b,150)
+        }
+        rect(i * resolution, j * resolution, resolution, resolution);
+        index++;
+      }
+    }
+  })
+
+  strokeWeight(6)
   for (let i = 0; i < xvals.length; i++) {
     label = yvals[i] < 0
     let px = map(xvals[i][0], -1, 1, 0, width)
     let py = map(xvals[i][1], -1, 1, height, 0)
     if (label) {
-      stroke(255, 255, 150)
+      stroke('#f59322')
     } else {
-      stroke(150, 150, 255)
+      stroke('#0877bd')
     }
     point(px, py)
   }
