@@ -5,7 +5,7 @@ let inputDiv
 let xvals = []
 let yvals = []
 
-let inputs
+let inputs = [[0,0],[0,1]]
 let resolution = 25;
 let cols
 let rows
@@ -28,33 +28,35 @@ model.add(tf.layers.dense({
   activation: 'tanh'
 }))
 
-// Prepare the model for training: Specify the loss and the optimizer.
 model.compile({loss: tf.losses.meanSquaredError, optimizer})
 
-async function train(input, target) {
-  let response = undefined
-  if (input.length > 0) {
-    let xs = tf.tensor(input)
-    let ys = tf.tensor(target)
-    response = await model.fit(xs,ys,{
-      shuffle: true,
-      epochs: 10,
-    })
-    xs.dispose()
-    ys.dispose()
+function train() {
+  if(xvals.length > 0) {
+    trainModel().then(result => {
+      setTimeout(train, 10);
+    });
   }
-  return response
+  else {
+    setTimeout(train, 10);
+  }
+}
+
+function trainModel() {
+  return model.fit(tf.tensor(xvals), tf.tensor(yvals), {
+    shuffle: true,
+    epochs: 1
+  });
 }
 
 
 let setSize = function() {
   let parentWidth = $("#demo").width()
-  let size = parentWidth < windowHeight ? parentWidth : windowHeight
-  resizeCanvas(size, size)
+  let size = parentWidth < windowHeight ? parentWidth : windowHeight;
+  resizeCanvas(size, size, true);
 
-  cols = width / resolution
-  rows = height / resolution
-  inputs = []
+  cols = width / resolution;
+  rows = height / resolution;
+  inputs = [];
   for (let i = 0; i < cols; i++) {
     for (let j = 0; j < rows; j++) {
       let x1 = map(i * resolution, 0,  width, -1, 1);
@@ -71,7 +73,10 @@ function setup() {
 
   outputDiv = select("#output")
   inputDiv = select("#input")
+
+  setTimeout(train, 10);
 }
+
 function hexToRgb(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
@@ -84,30 +89,30 @@ function hexToRgb(hex) {
 function draw() {
   background(255)
 
-  train(xvals, yvals).then((response) => {
-    let y = [];
-    tf.tidy(() => {
+  let y = [];
+  tf.tidy(() => {
+    if(inputs !== undefined) {
       let ys = model.predict(tf.tensor(inputs));
       y = ys.dataSync();
       ys.dispose();
-    })
-    noStroke()
-
-    let tmpScale = d3.scale.linear().domain([0, .5, 1]).range(["#f59322", "#e8eaeb", "#0877bd"]).clamp(!0)
-
-    let index = 0
-    for (let i = 0; i < cols; i++) {
-      for (let j = 0; j < rows; j++) {
-        if(y[index] === undefined) fill(255,255,255,50)
-        else {
-          let c = hexToRgb(tmpScale(y[index]))
-          fill(c.r,c.g,c.b,150)
-        }
-        rect(i * resolution, j * resolution, resolution, resolution);
-        index++;
-      }
     }
+    noStroke()
   })
+
+  let tmpScale = d3.scale.linear().domain([0, .5, 1]).range(["#f59322", "#e8eaeb", "#0877bd"]).clamp(!0)
+
+  let index = 0
+  for (let i = 0; i < cols; i++) {
+    for (let j = 0; j < rows; j++) {
+      if(y[index] === undefined) fill(255,255,255)
+      else {
+        let c = hexToRgb(tmpScale(y[index]))
+        fill(c.r,c.g,c.b,150)
+      }
+      rect(i * resolution, j * resolution, resolution, resolution);
+      index++;
+    }
+  }
 
   strokeWeight(6)
   for (let i = 0; i < xvals.length; i++) {
@@ -121,8 +126,6 @@ function draw() {
     }
     point(px, py)
   }
-
-
 }
 
 function windowResized() {
